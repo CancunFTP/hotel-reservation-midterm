@@ -1,0 +1,38 @@
+digraph HotelReservationUML {
+  graph [label="Hotel Reservation Management System | UML Class Diagram", labelloc=t,
+         fontname="DejaVu Sans", fontsize=24, fontcolor="#17283d", bgcolor="#f6f8fb",
+         rankdir=TB, splines=true, nodesep=0.48, ranksep=0.8, pad=0.35, dpi=160,
+         outputorder=edgesfirst];
+  node [shape=record, fontname="DejaVu Sans", fontsize=11, style="filled,rounded",
+        fillcolor="#ffffff", color="#496884", penwidth=1.5, margin="0.16,0.10"];
+  edge [fontname="DejaVu Sans", fontsize=10, color="#496884", fontcolor="#27384c",
+        penwidth=1.35, labeldistance=1.9, labelfontsize=10, arrowsize=1.0];
+
+  Room [label="{Room «abstract»| - room_number\l - nights\l| + initialize(room_number:, nights:)\l + description()\l + to_s()\l + calculate_cost() «abstract»\l}", fillcolor="#e9f3ff"];
+  StandardRoom [label="{StandardRoom| BASE_RATE = 80\l RATE_PER_NIGHT = 40\l| + calculate_cost()\l}"];
+  SuiteRoom [label="{SuiteRoom| BASE_RATE = 80\l RATE_PER_NIGHT = 40\l SUITE_FEE = 75\l| + calculate_cost()\l}"];
+  CabanaRoom [label="{CabanaRoom| BASE_RATE = 80\l RATE_PER_NIGHT = 40\l PEAK_MULTIPLIER = 1.5\l| + calculate_cost()\l}"];
+
+  Reservation [label="{Reservation| + guest_name\l + confirmation_number\l - room\l - events\l - notifiers\l| + initialize(guest_name:, room:, notifiers:)\l + update_status(status:, location:, ...)\l + latest_status()\l + current_status()\l + event_history()\l + total_cost()\l}", fillcolor="#e8f8ee"];
+  ReservationEvent [label="{ReservationEvent «value object»| + status\l + location\l + timestamp\l + notes\l| + initialize(status:, location:, ...)\l + to_s()\l}", fillcolor="#f2edff"];
+  Notifier [label="{«interface» Notifier| + notify(reservation, event)\l}", fillcolor="#fff3e5"];
+  TextNotifier [label="{TextNotifier| - phone_number\l| + initialize(phone_number:)\l + notify(reservation, event)\l - message_for(status)\l}"];
+  EmailNotifier [label="{EmailNotifier| - guest_email\l| + initialize(guest_email:)\l + notify(reservation, event)\l - message_for(status)\l}"];
+  FrontDeskNotifier [label="{FrontDeskNotifier| | + notify(reservation, event)\l - instruction_for(status)\l}"];
+
+
+  { rank=same; StandardRoom; SuiteRoom; CabanaRoom; }
+  { rank=same; TextNotifier; EmailNotifier; FrontDeskNotifier; }
+  Room -> StandardRoom [dir=back, arrowtail=empty, arrowhead=none];
+  Room -> SuiteRoom [dir=back, arrowtail=empty, arrowhead=none];
+  Room -> CabanaRoom [dir=back, arrowtail=empty, arrowhead=none];
+
+  Notifier -> TextNotifier [dir=back, arrowtail=empty, arrowhead=none, style=dashed];
+  Notifier -> EmailNotifier [dir=back, arrowtail=empty, arrowhead=none, style=dashed];
+  Notifier -> FrontDeskNotifier [dir=back, arrowtail=empty, arrowhead=none, style=dashed];
+
+  Reservation -> Room [label="books", headlabel="1", taillabel="1", arrowhead=vee];
+  Reservation -> ReservationEvent [label="stores", headlabel="0..*", taillabel="1",
+                                  dir=both, arrowtail=diamond, arrowhead=none, minlen=2];
+  Reservation -> Notifier [label="injected", headlabel="1..*", taillabel="1", arrowhead=vee];
+}
